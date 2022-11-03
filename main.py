@@ -7,6 +7,7 @@ import os
 import operator
 from keep_alive import keep_alive
 import time
+
 dbClient = pymongo.MongoClient(os.getenv('DB'), 27017)
 db = dbClient.discord
 
@@ -70,6 +71,30 @@ def showLeaderBoard(server: str):
     for i in reversed(sortedUsers):
         msgStr += row(name1=i[0], name2=i[1], name3=i[2]) + '\n'
     return "```" + msgStr + "```"
+
+
+def journey(user: str):
+    msgStr = ''
+    url = 'https://codeforces.com/api/user.rating?handle=' + user
+    response = requests.get(url)
+    data = json.loads(response.text)
+    if (data['status'] == 'OK'):
+        row = "{name1:^20}|{name2:^20}|{name3:^20}".format
+        result = data['result']
+        msgStr = row(name1="Contests", name2="Rank", name3="Rating") + '\n\n'
+        for i in reversed(result):
+            if (len(msgStr) > 1800):
+                break
+            msgStr += row(
+                name1=i['contestName'],
+                name2=i['rank'],
+                name3=(str(i['newRating']) + ' (' +
+                       str(int(i['oldRating']) - int(i['newRating'])) +
+                       ')')) + '\n'
+
+    else:
+        msgStr = 'No data Found!!'
+    return '```' + msgStr + '```'
 
 
 def setHandle(server: str, handle: str):
@@ -145,6 +170,13 @@ async def on_message(message):
         except:
             await message.channel.send(
                 'Please try again using * set <HandleName>')
+
+    if (message.content.startswith(('* journey'))):
+        try:
+            Handle = message.content.split()[2]
+            await message.channel.send(journey(Handle))
+        except Exception as e:
+            await message.channel.send(str(e))
 
 
 #addressing the bot
