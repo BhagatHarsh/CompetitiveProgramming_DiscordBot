@@ -14,12 +14,17 @@ db = dbClient.discord
 #global vars
 client = dc.Client()
 problems = {}
+minQuery = 10000
+maxQuery = -1
+QueryList = set()
 dump = []
 flag = 0
 TOKEN = os.environ["KEY"]
 
 
 def preCompute():
+    global minQuery, maxQuery
+    print("Getting the questions ready")
     global flag
     url = 'https://codeforces.com/api/problemset.problems'
     reqs = requests.get(url)
@@ -28,6 +33,9 @@ def preCompute():
         try:
             dump.append(int(line['rating']))
             flag = 1
+            minQuery = min(minQuery, int(line['rating']))
+            maxQuery = max(maxQuery, int(line['rating']))
+            QueryList.add(int(line['rating']))
             problems[int(line['rating'])].append(line)
         except:
             if (flag):
@@ -35,8 +43,9 @@ def preCompute():
             else:
                 dump.append(line['contestId'])
         flag = 0
-    return
-
+    return minQuery, maxQuery 
+    
+# minQuery, maxQuery = preCompute()
 
 def getRating(user: str) -> str:
     url = 'https://codeforces.com/api/user.rating?handle=' + user
@@ -115,18 +124,14 @@ def setHandle(server: str, handle: str):
 
 
 def getQuestion(rating, author):
-    try:
-        poolOfProblems = problems[rating]
-        problem = poolOfProblems[random.randint(0, len(poolOfProblems) - 1)]
-        msgstr = 'Try to solve this ' + str(rating) + ' rated problem ' + str(
-            author) + '\n'
-        msgstr += "https://codeforces.com/problemset/problem/" + str(
-            problem["contestId"]) + "/" + str(problem["index"])
+    poolOfProblems = problems[rating]
+    problem = poolOfProblems[random.randint(0, len(poolOfProblems) - 1)]
+    msgstr = 'Try to solve this ' + str(rating) + ' rated problem ' + str(
+        author) + '\n'
+    msgstr += "https://codeforces.com/problemset/problem/" + str(
+        problem["contestId"]) + "/" + str(problem["index"])
 
-        return msgstr
-    except Exception as e:
-        return e
-    return
+    return msgstr
 
 
 @client.event
@@ -141,9 +146,22 @@ async def on_message(message):
     if (message.author == client.user):
         return
 
-    if (message.content == '*'):
-        await message.channel.send(
-            '[ping here](https://CFbot2.harshbhagat1.repl.co)')
+    if (message.content == '* help'):
+        msgStr = """
+        ```
+"* set <handle>" to add your code forces handle to the database. 
+For example "* set Tourist".
+
+"* gimme <rating> to get a codeforces random question of <rating> level. 
+For example "* gimme 1200".
+
+"* ratings" to get a list of all problem ratings you can gimme for.
+
+"* list" to list all the ratings of the registered handles in the database.
+
+"* journey <handle>" to see all the recent activity of the user <handle> on codeforces.```
+        """
+        await message.channel.send(msgStr)
 
     if (message.content.startswith(('* set'))):
         try:
@@ -161,7 +179,15 @@ async def on_message(message):
                                                    message.author))
         except:
             await message.channel.send(
-                'Please try again using * gimme <Rating>')
+                'Please try again using * gimme <Rating> where rating name is between %s and %s'%(str(minQuery), str(maxQuery)))
+
+    if (message.content.startswith(('* ratings'))):
+        try:
+            msgStr = "The question ratings persent are: \n" + (' '.join([str(rating) for rating in sorted(QueryList)]))
+            await message.channel.send("```\n" + msgStr + '```')
+        except Exception as e:
+            await message.channel.send(
+                'Please try again using * ratings error occured %s' % (str(e)))
 
     if (message.content.startswith(('* list'))):
         try:
@@ -169,7 +195,7 @@ async def on_message(message):
             await message.channel.send(showLeaderBoard(server))
         except:
             await message.channel.send(
-                'Please try again using * set <HandleName>')
+                'Please try again using * set <HandleName> ')
 
     if (message.content.startswith(('* journey'))):
         try:
@@ -180,7 +206,6 @@ async def on_message(message):
 
 
 #addressing the bot
-
 keep_alive()
 try:
     client.run(TOKEN)
