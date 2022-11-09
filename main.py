@@ -88,14 +88,21 @@ def journey(user: str):
     response = requests.get(url)
     data = json.loads(response.text)
     if (data['status'] == 'OK'):
-        row = "{name1:^20}|{name2:^20}|{name3:^20}".format
+        row = "{name1:>20}  {name2:>20}  {name3:>20}".format
         result = data['result']
         msgStr = row(name1="Contests", name2="Rank", name3="Rating") + '\n\n'
         for i in reversed(result):
             if (len(msgStr) > 1800):
                 break
+            
+            try:
+                strippedContestName = i['contestName'][i['contestName'].
+                                                       find('Codeforces'):i['contestName'].
+                                                       find('(')]
+            except:
+                strippedContestName = i['contestName']
             msgStr += row(
-                name1=i['contestName'],
+                name1=strippedContestName,
                 name2=i['rank'],
                 name3=(str(i['newRating']) + ' (' +
                        str(int(i['oldRating']) - int(i['newRating'])) +
@@ -104,6 +111,7 @@ def journey(user: str):
     else:
         msgStr = 'No data Found!!'
     return '```' + msgStr + '```'
+
 
 
 def setHandle(server: str, handle: str):
@@ -183,7 +191,7 @@ For example "* gimme 1200".
 
     if (message.content.startswith(('* ratings'))):
         try:
-            msgStr = "The question ratings persent are: \n" + (' '.join([str(rating) for rating in sorted(QueryList)]))
+            msgStr = "The question ratings present are: \n" + (' '.join([str(rating) for rating in sorted(QueryList)]))
             await message.channel.send("```\n" + msgStr + '```')
         except Exception as e:
             await message.channel.send(
