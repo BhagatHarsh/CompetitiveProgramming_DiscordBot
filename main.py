@@ -43,9 +43,11 @@ def preCompute():
             else:
                 dump.append(line['contestId'])
         flag = 0
-    return minQuery, maxQuery 
-    
+    return minQuery, maxQuery
+
+
 # minQuery, maxQuery = preCompute()
+
 
 def getRating(user: str) -> str:
     url = 'https://codeforces.com/api/user.rating?handle=' + user
@@ -65,8 +67,9 @@ def showLeaderBoard(server: str):
                 time.sleep(0.5)
                 key = eval(getRating(j[0:100]))
                 # print(type(eval(key)))
-                users.append((key['handle'], key['newRating'],
-                              key['newRating'] - key['oldRating']))
+                users.append(
+                    (key['handle'], key['newRating'],
+                     '(' + str(key['newRating'] - key['oldRating']) + ')'))
             except:
                 msgStr += "Error Occured while getting the rating of " + str(
                     j) + '\n'
@@ -94,24 +97,22 @@ def journey(user: str):
         for i in reversed(result):
             if (len(msgStr) > 1800):
                 break
-            
+
             try:
-                strippedContestName = i['contestName'][i['contestName'].
-                                                       find('Codeforces'):i['contestName'].
-                                                       find('(')]
+                strippedContestName = i['contestName'][i['contestName'].find(
+                    'Codeforces'):i['contestName'].find('(')]
             except:
                 strippedContestName = i['contestName']
             msgStr += row(
                 name1=strippedContestName,
                 name2=i['rank'],
                 name3=(str(i['newRating']) + ' (' +
-                       str(int(i['oldRating']) - int(i['newRating'])) +
+                       str(int(i['newRating']) - int(i['oldRating'])) +
                        ')')) + '\n'
 
     else:
         msgStr = 'No data Found!!'
     return '```' + msgStr + '```'
-
 
 
 def setHandle(server: str, handle: str):
@@ -187,11 +188,13 @@ For example "* gimme 1200".
                                                    message.author))
         except:
             await message.channel.send(
-                'Please try again using * gimme <Rating> where rating name is between %s and %s'%(str(minQuery), str(maxQuery)))
+                'Please try again using * gimme <Rating> where rating name is between %s and %s'
+                % (str(minQuery), str(maxQuery)))
 
     if (message.content.startswith(('* ratings'))):
         try:
-            msgStr = "The question ratings present are: \n" + (' '.join([str(rating) for rating in sorted(QueryList)]))
+            msgStr = "The question ratings present are: \n" + (' '.join(
+                [str(rating) for rating in sorted(QueryList)]))
             await message.channel.send("```\n" + msgStr + '```')
         except Exception as e:
             await message.channel.send(
