@@ -7,8 +7,8 @@ import os
 import operator
 from keep_alive import keep_alive
 import time
-from dotenv import load_dotenv
-load_dotenv()  # take environment variables from .env.
+# from dotenv import load_dotenv
+# load_dotenv()  # take environment variables from .env.
 
 dbClient = pymongo.MongoClient(os.getenv('DB'), 27017)
 db = dbClient.discord
