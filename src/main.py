@@ -218,10 +218,5 @@ For example "* gimme 1200".
 
 #addressing the bot
 keep_alive()
-try:
-    client.run(TOKEN)
-except Exception as e:
-    print("\n\n\nBLOCKED BY RATE LIMITS\nRESTARTING NOW\n\n\n")
-    with open("Error.txt", "w") as f:
-        f.write(str(e))
-    os.system('python3 main.py')
+client.run(TOKEN)
+
