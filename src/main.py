@@ -5,7 +5,7 @@ import random
 import pymongo
 import os
 import operator
-# from keep_alive import keep_alive
+from keep_alive import keep_alive
 import time
 # from dotenv import load_dotenv
 # load_dotenv()  # take environment variables from .env.
@@ -219,6 +219,6 @@ For example "* gimme 1200".
 
 
 #addressing the bot
-# keep_alive()
+keep_alive()
 client.run(TOKEN)
 
