@@ -1,4 +1,5 @@
 # Python Discord Bot
+[Invite link](https://discord.com/api/oauth2/authorize?client_id=1015910860671172659&permissions=17448429616&scope=applications.commands%20bot)
 
 This is a starting point for making your own Discord bot using Python and the [discordpy](https://discordpy.readthedocs.io/) library.
 Read [their getting-started guides](https://discordpy.readthedocs.io/en/stable/#getting-started) to get the most out of this template.
